@@ -1,0 +1,170 @@
+/*PACMAN GAME*/ 
+#include <conio.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+
+#define Width 40 
+#define Height 20 
+#define Pacman 'C' 
+#define Wall '#' 
+#define Food '.' 
+#define Empty ' ' 
+#define Demon 'X' 
+
+int r = 0; 
+int Score = 0; 
+int pacman_x, pacman_y; 
+char board[Height][Width]; 
+int food = 0; 
+int curr = 0; 
+void initialize() 
+{  
+       for (int i = 0; i < Height; i++) { 
+		for (int j = 0; j < Width; j++) { 
+			if (i == 0 || j == Width - 1 || j == 0 || i == Height - 1) { 
+				board[i][j] = Wall; 
+			} 
+			else
+				board[i][j] = Empty; 
+		} 
+	} 
+ 
+	int count = 50; 
+	while (count != 0) { 
+		int i = (rand() % (Height + 1)); 
+		int j = (rand() % (Width + 1)); 
+
+		if (board[i][j] != Wall && board[i][j] != Pacman) { 
+			board[i][j] = Wall; 
+			count--; 
+		} 
+	} 
+
+	int val = 5; 
+	while (val--) { 
+		int row = (rand() % (Height + 1)); 
+		for (int j = 3; j < Width - 3; j++) { 
+			if (board[row][j] != Wall 
+				&& board[row][j] != Pacman) { 
+				board[row][j] = Wall; 
+			} 
+		} 
+	} 
+
+	count = 10; 
+	while (count != 0) { 
+		int i = (rand() % (Height + 1)); 
+		int j = (rand() % (Width + 1)); 
+
+		if (board[i][j] != Wall && board[i][j] != Pacman) { 
+			board[i][j] = Demon; 
+			count--; 
+		} 
+	} 
+ 
+	pacman_x = Width / 2; 
+	pacman_y = Height / 2; 
+	board[pacman_y][pacman_x] = Pacman; 
+	for (int i = 0; i < Height; i++) { 
+		for (int j = 0; j < Width; j++) { 
+			if (i % 2 == 0 && j % 2 == 0 && board[i][j] != Wall  && board[i][j] != Demon && board[i][j] != Pacman) { 
+                                         board[i][j] = Food; 
+				food++; 
+			} 
+		} 
+	} 
+} 
+
+void draw() 
+{ 
+	system("cls"); 
+	for (int i = 0; i < Height; i++) { 
+		for (int j = 0; j < Width; j++) { 
+			printf("%c", board[i][j]); 
+		} 
+		printf("\n"); 
+	}
+	printf("Score: %d\n", Score); 
+} 
+
+void movePacman(int move_x, int move_y)  { 
+	int x = pacman_x + move_x; 
+	int y = pacman_y + move_y; 
+
+	if (board[y][x] != Wall) { 
+		if (board[y][x] == Food) { 
+			Score++; 
+			food--; 
+			if (food == 0) { 
+				r = 2; 
+				return; 
+			} 
+		} 
+		else if (board[y][x] == Demon) { 
+			r = 1; 
+		} 
+
+		board[pacman_y][pacman_x] = Empty; 
+		pacman_x = x; 
+		pacman_y = y; 
+		board[pacman_y][pacman_x] = Pacman; 
+	} 
+} 
+
+int main() 
+{ 
+	initialize(); 
+	char ch; 
+	int totalFood = food;  
+	printf(" Use buttons for w(up), a(left) , d(right) and s(down)\nAlso, Press q for quit\n"); 
+
+	printf("Enter Y to continue: \n"); 
+
+	ch = getchar(); 
+	if (ch != 'Y' && ch != 'y') { 
+		printf("Exit Game! "); 
+		return 1; 
+	} 
+
+	while (1) { 
+		draw(); 
+		printf("Total Food count: %d\n", totalFood); 
+		printf("Total Food eaten: %d\n", Score); 
+                    if(r != 1 && r != 2) {
+		       printf("Use buttons for w(up), a(left) , d(right) and s(down) for next move\nAlso, Press q for quit\n");
+                    }
+		if (r == 1) { 
+			system("cls"); 
+			printf("Game Over! Dead by Demon\n Your Score: ""%d\n", Score); 
+			return 1; 
+		} 
+
+		if (r == 2) { 
+			system("cls"); 
+			printf("You Win! \n Your Score: %d\n", Score); 
+			return 1; 
+		} 
+ 
+		ch = getchar(); 
+
+		switch (ch) { 
+		case 'u': 
+			movePacman(0, -1); 
+			break; 
+		case 'd': 
+			movePacman(0, 1); 
+			break; 
+		case 'l': 
+			movePacman(-1, 0); 
+			break; 
+		case 'r': 
+			movePacman(1, 0); 
+			break; 
+		case 'q': 
+			printf("Game Over! Your Score: %d\n", Score); 
+			return 0; 
+		} 
+	} 
+
+	return 0; 
+}
